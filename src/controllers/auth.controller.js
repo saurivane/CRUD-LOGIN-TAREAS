@@ -6,6 +6,8 @@ export const register = async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
+        const userFound = await User.findOne({ email });
+        if (userFound) return res.status(400).json( ["The email is already in use"] );
 
         const passwordHash = await bcrypt.hash(password, 10);
 
@@ -14,7 +16,7 @@ export const register = async (req, res) => {
             email,
             password: passwordHash,
         });
-        
+
         const userSaved = await newUser.save();
         const token = await createAccessToken({ id: userSaved._id });
 
@@ -27,7 +29,7 @@ export const register = async (req, res) => {
             updatedAt: userSaved.updatedAt,
         });
     } catch (error) {
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
     };
 };
 
@@ -36,14 +38,14 @@ export const login = async (req, res) => {
 
     try {
 
-        const userFound = await User.findOne({email});
+        const userFound = await User.findOne({ email });
 
-        if(!userFound) return res.status(400).json({message: "User not found"});
+        if (!userFound) return res.status(400).json({ message: "User not found" });
 
         const isMatch = await bcrypt.compare(password, userFound.password);
 
-        if(!isMatch) return res.status(400).json({message: "Invalid credential"})
-        
+        if (!isMatch) return res.status(400).json({ message: "Invalid credential" })
+
         const token = await createAccessToken({ id: userFound._id });
 
         res.cookie('token', token);
@@ -55,7 +57,7 @@ export const login = async (req, res) => {
             updatedAt: userFound.updatedAt,
         });
     } catch (error) {
-        res.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
     };
 };
 
@@ -69,7 +71,7 @@ export const logout = (req, res) => {
 export const profile = async (req, res) => {
     const userFound = await User.findById(req.user.id);
 
-    if(!userFound) return res.status(400).json({ message: "User not found" });
+    if (!userFound) return res.status(400).json({ message: "User not found" });
 
     res.json({
         id: userFound._id,
