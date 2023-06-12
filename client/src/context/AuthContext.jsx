@@ -47,6 +47,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const logout = () => {
+    Cookies.remove('token');
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
   // Función para que los errores desaparezcan después de X tiempo
   useEffect(() => {
     if (errors.length > 0) {
@@ -89,7 +95,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ signup, signin, loading, user, isAuthenticated, errors }}
+      value={{ signup, signin, logout, loading, user, isAuthenticated, errors }}
     >
       {children}
     </AuthContext.Provider>
